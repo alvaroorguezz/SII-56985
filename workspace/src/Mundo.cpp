@@ -10,6 +10,9 @@
 #include <string.h>
 #include <math.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -21,7 +24,7 @@ CMundo::CMundo()
 
 CMundo::~CMundo()
 {
-
+	close(fd_fifo);
 }
 
 void CMundo::InitGL()
@@ -135,6 +138,9 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=2+2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=2+2*rand()/(float)RAND_MAX;
 		puntos2++;
+		char mensaje[100];
+		sprintf(mensaje, "Jugador 2 marca 1 punto, lleva un total de %d puntos.\n", puntos2);
+		write(fd_fifo, mensaje, strlen(mensaje));
 	}
 
 	if(fondo_dcho.Rebota(esfera))
@@ -144,6 +150,13 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
 		puntos1++;
+		char mensaje2[100];
+		sprintf(mensaje2, "Jugador 1 marca 1 punto, lleva un total de %d puntos.\n", puntos1);
+		write(fd_fifo, mensaje2, strlen(mensaje2));
+	}
+	
+	if (puntos1 == 3 || puntos2 == 3) {
+    		exit(0);
 	}
 
 }
