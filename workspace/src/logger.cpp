@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
     /* Leer de la FIFO */
     while (read(fd, buffer, sizeof(buffer)) > 0) {
 	// X5: Imprimir el texto en la pantalla
+	printf("%s", buffer);
     }
     close(fd);
     unlink("fifo_tenis");
