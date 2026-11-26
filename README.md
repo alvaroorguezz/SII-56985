@@ -25,12 +25,31 @@ Tercera práctica de SII: Comunicación mediante archivos proyectados en memoria
 
 Durante esta tercera práctica se han implementado las siguientes funcionalidades:
 
--Gestión de ramas en Git:** Desarrollo aislado en la rama `practica3` y posterior fusión (*merge*) con la rama `master`.
+-Gestión de ramas en Git: Desarrollo aislado en la rama `practica3` y posterior fusión (*merge*) con la rama `master`.
 
--Estructura compartida (`DatosMemCompartida.h`):** Definición de la clase que almacena el estado de la esfera, la raqueta 1 y la acción a ejecutar (`1` arriba, `0` nada, `-1` abajo).
+-Estructura compartida (`DatosMemCompartida.h`): Definición de la clase que almacena el estado de la esfera, la raqueta 1 y la acción a ejecutar (`1` arriba, `0` nada, `-1` abajo).
 
--Programa Bot (`bot.cpp`):** Creación del proceso independiente `bot` que abre y proyecta el archivo en memoria compartida (`mmap`), leyendo periódicamente (cada 25 ms) las coordenadas de la pelota y la raqueta para decidir el movimiento.
+-Programa Bot (`bot.cpp`): Creación del proceso independiente `bot` que abre y proyecta el archivo en memoria compartida (`mmap`), leyendo periódicamente (cada 25 ms) las coordenadas de la pelota y la raqueta para decidir el movimiento.
 
--Integración en el juego (`Mundo.h` y `Mundo.cpp`):** Creación del archivo compartido (`open` y `ftruncate`), proyección en memoria y actualización en `OnTimer()` para enviar posiciones y ejecutar automáticamente la acción decidida por el bot.
+-Integración en el juego (`Mundo.h` y `Mundo.cpp`): Creación del archivo compartido (`open` y `ftruncate`), proyección en memoria y actualización en `OnTimer()` para enviar posiciones y ejecutar automáticamente la acción decidida por el bot.
 
 -Compilación (`CMakeLists.txt`):** Inclusión del ejecutable `bot` en la configuración de CMake.
+
+
+Práctica 4: Concurrencia (Arquitectura Cliente-Servidor)
+
+Durante esta cuarta práctica se ha refactorizado el juego en una arquitectura distribuida concurrente:
+
+Gestión de ramas en Git: Desarrollo en la rama `practica4` y posterior fusión (*merge*) con `master`.
+
+Separación en Cliente y Servidor: Sustitución de `tenis.cpp` y `Mundo` por los programas independientes `servidor` (`servidor.cpp`, `MundoServidor`) y `cliente` (`cliente.cpp`, `MundoCliente`), manteniendo el `logger` conectado al servidor y el `bot` al cliente.
+
+Comunicación bidireccional mediante FIFOs:
+
+Tubería `fifo_datos` para enviar en cada `OnTimer()` las coordenadas de la pelota, las raquetas y el marcador desde el servidor al cliente (`sprintf`/`sscanf`).
+
+Tubería `fifo_comandos` para enviar las teclas pulsadas (y las acciones del bot) desde el cliente al servidor.
+
+Concurrencia con hilos (`pthread`): Creación de un hilo independiente (`hilo_comandos` / `RecibeComandosJugador`) en el servidor para escuchar continuamente los comandos del cliente sin bloquear el bucle gráfico.
+
+Compilación (`CMakeLists.txt`):** Actualización de los objetivos para generar los 4 ejecutables (`servidor`, `cliente`, `logger` y `bot`) enlazando la librería `pthread`.
