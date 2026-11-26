@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <sys/mman.h>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -118,6 +120,17 @@ void CMundo::OnDraw()
 
 void CMundo::OnTimer(int value)
 {	
+
+	dat->esfera = esfera;
+	dat->raqueta1 = jugador1;
+	
+	if (dat->accion == 1) {
+ 	   OnKeyboardDown('w', 0, 0);
+ 	   
+	} else if (dat->accion == -1) {
+  	  OnKeyboardDown('s', 0, 0);
+	}
+	
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
@@ -205,4 +218,16 @@ void CMundo::Init()
 	jugador2.g=0;
 	jugador2.x1=6;jugador2.y1=-1;
 	jugador2.x2=6;jugador2.y2=1;
+	
+	int fd = open("mem_tenis", O_CREAT | O_RDWR, 0666);
+	
+	ftruncate(fd, sizeof(DatosMemCompartida));
+	
+	char* direccion = (char*)mmap(NULL, sizeof(DatosMemCompartida), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	
+	close(fd);
+	
+	dat = (DatosMemCompartida*)direccion;
+	
+	dat->accion = 0;
 }
